@@ -58,13 +58,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Input Text", MultiLine = "true"))
 	FString InputText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Horizontal Alignment"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, meta = (DisplayName = "Horizontal Alignment"))
 	ENTPTextHorizontalAlignment HorizontalAlignment = ENTPTextHorizontalAlignment::NTP_THA_Center;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Vertical Alignment"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, meta = (DisplayName = "Vertical Alignment"))
 	ENTPTextVerticalAlignment VerticalAlignment = ENTPTextVerticalAlignment::NTP_TVA_Center;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Filter Whitespace Characters"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, meta = (DisplayName = "Filter Whitespace Characters"))
 	bool bFilterWhitespaceCharacters = true;
 
 	//UObject Interface

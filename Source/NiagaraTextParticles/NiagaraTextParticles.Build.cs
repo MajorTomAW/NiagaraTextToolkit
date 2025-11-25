@@ -27,6 +27,8 @@ public class NiagaraTextParticles : ModuleRules
 			{
 				"Core",
                 "Niagara",
+                "NiagaraShader",
+				"NiagaraVertexFactories",
 				// ... add other public dependencies that you statically link with here ...
 			}
             );
@@ -39,15 +41,29 @@ public class NiagaraTextParticles : ModuleRules
 				"Engine",
 				"RHI",
 				"Niagara",
-				"RenderCore",
+                "RenderCore",
 				"NiagaraCore",
 				"Projects",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-		
-		
-		DynamicallyLoadedModuleNames.AddRange(
+
+		// TODO: Probably don't need all of these
+        if (Target.bBuildEditor == true)
+        {
+            PrivateDependencyModuleNames.AddRange(
+                new string[] {
+                "TargetPlatform",
+                "DerivedDataCache",
+                "EditorFramework",
+                "UnrealEd",
+                "SlateCore",
+                "Slate"
+            });
+        }
+
+
+        DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
 				// ... add any modules that your module loads dynamically here ...

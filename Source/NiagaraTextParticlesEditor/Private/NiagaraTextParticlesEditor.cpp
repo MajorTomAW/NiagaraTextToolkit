@@ -2,6 +2,9 @@
 
 #include "NiagaraTextParticlesEditor.h"
 #include "NiagaraSettings.h"
+#include "NiagaraEditorModule.h"
+#include "NiagaraRendererProperties.h"
+#include "NTPNiagaraFontRendererProperties.h"
 
 #define LOCTEXT_NAMESPACE "FNiagaraTextParticlesEditorModule"
 
@@ -20,6 +23,21 @@ void FNiagaraTextParticlesEditorModule::StartupModule()
 			NiagaraSettings->SaveConfig();
 		}
 	}
+
+	FNiagaraEditorModule& NiagaraEditorModule = FModuleManager::LoadModuleChecked<FNiagaraEditorModule>("NiagaraEditor");
+
+	FNiagaraRendererCreationInfo RendererInfo;
+	RendererInfo.DisplayName = NSLOCTEXT("Niagara", "NTPFontRenderer", "Font Renderer");
+	RendererInfo.Description = NSLOCTEXT("Niagara", "NTPFontRendererDesc", "Font renderer specialized for Niagara Text Particles.");
+	RendererInfo.RendererClassPath = FTopLevelAssetPath(TEXT("/Script/NiagaraTextParticles.NTPNiagaraFontRendererProperties"));
+	RendererInfo.RendererFactory = FNiagaraRendererCreationInfo::FRendererFactory::CreateLambda(
+		[](UObject* Outer) -> UNiagaraRendererProperties*
+		{
+			return NewObject<UNTPNiagaraFontRendererProperties>(Outer ? Outer : GetTransientPackage());
+		}
+	);
+
+	NiagaraEditorModule.RegisterRendererCreationInfo(RendererInfo);
 }
 
 void FNiagaraTextParticlesEditorModule::ShutdownModule()

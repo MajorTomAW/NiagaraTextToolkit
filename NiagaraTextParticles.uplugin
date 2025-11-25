@@ -27,6 +27,11 @@
 			"LoadingPhase": "Default"
 		},
 		{
+			"Name": "NiagaraTextParticlesVertexFactories",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit"
+		},
+		{
 			"Name": "NiagaraTextParticlesEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default"

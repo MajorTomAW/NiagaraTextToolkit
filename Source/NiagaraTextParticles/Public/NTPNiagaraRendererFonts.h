@@ -9,7 +9,7 @@ NTPNiagaraRendererFonts.h: Renderer for rendering Niagara particles as fonts.
 #include "Engine/EngineTypes.h"
 #include "NiagaraRenderer.h"
 #include "NTPNiagaraFontRendererProperties.h"
-#include "NiagaraSpriteVertexFactory.h"
+#include "NTPNiagaraFontVertexFactory.h"
 
 struct FNTPNiagaraDynamicDataFonts;
 
@@ -67,8 +67,8 @@ private:
 	public:
 		~FMeshCollectorResources() override { VertexFactory.ReleaseResource(); }
 
-		FNiagaraSpriteVertexFactory		VertexFactory;
-		FNiagaraSpriteUniformBufferRef	UniformBuffer;
+		FNTPNiagaraFontVertexFactory		VertexFactory;
+		FNTPNiagaraFontUniformBufferRef		UniformBuffer;
 	};
 
     static bool AllowComputeShaders(EShaderPlatform ShaderPlatform);
@@ -77,8 +77,8 @@ private:
 	void PrepareParticleSpriteRenderData(FParticleSpriteRenderData& ParticleSpriteRenderData, const FSceneViewFamily& ViewFamily, FNiagaraDynamicDataBase* InDynamicData, const FNiagaraSceneProxy* SceneProxy, ENiagaraGpuComputeTickStage::Type GpuReadyTickStage) const;
 	void PrepareParticleRenderBuffers(FRHICommandListBase& RHICmdList, FParticleSpriteRenderData& ParticleSpriteRenderData, FGlobalDynamicReadBuffer& DynamicReadBuffer) const;
 	void InitializeSortInfo(FParticleSpriteRenderData& ParticleSpriteRenderData, const FNiagaraSceneProxy& SceneProxy, const FSceneView& View, int32 ViewIndex, FNiagaraGPUSortInfo& OutSortInfo) const;
-	void SetupVertexFactory(FRHICommandListBase& RHICmdList, FParticleSpriteRenderData& ParticleSpriteRenderData, FNiagaraSpriteVertexFactory& VertexFactory) const;
-	FNiagaraSpriteUniformBufferRef CreateViewUniformBuffer(FParticleSpriteRenderData& ParticleSpriteRenderData, const FSceneView& View, const FSceneViewFamily& ViewFamily, const FNiagaraSceneProxy& SceneProxy, FNiagaraSpriteVertexFactory& VertexFactory) const;
+	void SetupVertexFactory(FRHICommandListBase& RHICmdList, FParticleSpriteRenderData& ParticleSpriteRenderData, FNTPNiagaraFontVertexFactory& VertexFactory) const;
+	FNTPNiagaraFontUniformBufferRef CreateViewUniformBuffer(FParticleSpriteRenderData& ParticleSpriteRenderData, const FSceneView& View, const FSceneViewFamily& ViewFamily, const FNiagaraSceneProxy& SceneProxy, FNTPNiagaraFontVertexFactory& VertexFactory) const;
 
 	void CreateMeshBatchForView(
 		FRHICommandListBase& RHICmdList,
@@ -86,7 +86,7 @@ private:
 		FMeshBatch& MeshBatch,
 		const FSceneView& View,
 		const FNiagaraSceneProxy& SceneProxy,
-		FNiagaraSpriteVertexFactory& VertexFactory,
+		FNTPNiagaraFontVertexFactory& VertexFactory,
 		uint32 NumInstances,
 		uint32 GPUCountBufferOffset,
 		bool bDoGPUCulling

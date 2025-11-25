@@ -496,7 +496,7 @@ void FNTPNiagaraRendererFonts::InitializeSortInfo(FParticleSpriteRenderData& Par
 	}
 }
 
-void FNTPNiagaraRendererFonts::SetupVertexFactory(FRHICommandListBase& RHICmdList, FParticleSpriteRenderData& ParticleSpriteRenderData, FNiagaraSpriteVertexFactory& VertexFactory) const
+void FNTPNiagaraRendererFonts::SetupVertexFactory(FRHICommandListBase& RHICmdList, FParticleSpriteRenderData& ParticleSpriteRenderData, FNTPNiagaraFontVertexFactory& VertexFactory) const
 {
 	VertexFactory.SetParticleFactoryType(NVFT_Sprite);
 
@@ -547,9 +547,9 @@ void FNTPNiagaraRendererFonts::SetupVertexFactory(FRHICommandListBase& RHICmdLis
 	VertexFactory.InitResource(RHICmdList);
 }
 
-FNiagaraSpriteUniformBufferRef FNTPNiagaraRendererFonts::CreateViewUniformBuffer(FParticleSpriteRenderData& ParticleSpriteRenderData, const FSceneView& View, const FSceneViewFamily& ViewFamily, const FNiagaraSceneProxy& SceneProxy, FNiagaraSpriteVertexFactory& VertexFactory) const
+FNTPNiagaraFontUniformBufferRef FNTPNiagaraRendererFonts::CreateViewUniformBuffer(FParticleSpriteRenderData& ParticleSpriteRenderData, const FSceneView& View, const FSceneViewFamily& ViewFamily, const FNiagaraSceneProxy& SceneProxy, FNTPNiagaraFontVertexFactory& VertexFactory) const
 {
-	FNiagaraSpriteUniformParameters PerViewUniformParameters;
+	FNTPNiagaraFontUniformParameters PerViewUniformParameters;
 	FMemory::Memzero(&PerViewUniformParameters, sizeof(PerViewUniformParameters)); // Clear unset bytes
 
 	const bool bUseLocalSpace = UseLocalSpace(&SceneProxy);
@@ -865,7 +865,7 @@ FNiagaraSpriteUniformBufferRef FNTPNiagaraRendererFonts::CreateViewUniformBuffer
 		PerViewUniformParameters.TangentSelector = FVector4f(0.0f, 1.0f, 0.0f, 0.0f);
 	}
 
-	return FNiagaraSpriteUniformBufferRef::CreateUniformBufferImmediate(PerViewUniformParameters, UniformBuffer_SingleFrame);
+	return FNTPNiagaraFontUniformBufferRef::CreateUniformBufferImmediate(PerViewUniformParameters, UniformBuffer_SingleFrame);
 }
 
 void FNTPNiagaraRendererFonts::CreateMeshBatchForView(
@@ -874,13 +874,13 @@ void FNTPNiagaraRendererFonts::CreateMeshBatchForView(
 	FMeshBatch& MeshBatch,
 	const FSceneView& View,
 	const FNiagaraSceneProxy& SceneProxy,
-	FNiagaraSpriteVertexFactory& VertexFactory,
+	FNTPNiagaraFontVertexFactory& VertexFactory,
 	uint32 NumInstances,
 	uint32 GPUCountBufferOffset,
 	bool bDoGPUCulling
 ) const
 {
-	FNiagaraSpriteVFLooseParameters VFLooseParams;
+	FNTPNiagaraFontVFLooseParameters VFLooseParams;
 	VFLooseParams.NiagaraParticleDataFloat = ParticleSpriteRenderData.ParticleFloatSRV;
 	VFLooseParams.NiagaraParticleDataHalf = ParticleSpriteRenderData.ParticleHalfSRV;
 	VFLooseParams.NiagaraFloatDataStride = FMath::Max(ParticleSpriteRenderData.ParticleFloatDataStride, ParticleSpriteRenderData.ParticleHalfDataStride);
@@ -930,7 +930,7 @@ void FNTPNiagaraRendererFonts::CreateMeshBatchForView(
 		VFLooseParams.IndirectArgsOffset = 0;
 	}
 
-	VertexFactory.LooseParameterUniformBuffer = FNiagaraSpriteVFLooseParametersRef::CreateUniformBufferImmediate(VFLooseParams, UniformBuffer_SingleFrame);
+	VertexFactory.LooseParameterUniformBuffer = FNTPNiagaraFontVFLooseParametersRef::CreateUniformBufferImmediate(VFLooseParams, UniformBuffer_SingleFrame);
 
 	MeshBatch.VertexFactory = &VertexFactory;
 	MeshBatch.CastShadow = SceneProxy.CastsDynamicShadow();
@@ -1047,7 +1047,7 @@ void FNTPNiagaraRendererFonts::GetDynamicMeshElements(const TArray<const FSceneV
 
 			// Get the next vertex factory to use
 			// TODO: Find a way to safely pool these such that they won't be concurrently accessed by multiple views
-			FNiagaraSpriteVertexFactory& VertexFactory = CollectorResources->VertexFactory;
+			FNTPNiagaraFontVertexFactory& VertexFactory = CollectorResources->VertexFactory;
 
 			// Sort/Cull particles if needed.
 			uint32 NumInstances = SourceMode == ENiagaraRendererSourceDataMode::Particles ? ParticleSpriteRenderData.SourceParticleData->GetNumInstances() : 1;
@@ -1125,13 +1125,13 @@ void FNTPNiagaraRendererFonts::GetDynamicRayTracingInstances(FRayTracingMaterial
 		InitializeSortInfo(ParticleSpriteRenderData, *SceneProxy, *Context.ReferenceView, 0, SortInfo);
 	}
 
-	if (!FNiagaraSpriteVertexFactory::StaticType.SupportsRayTracingDynamicGeometry())
+	if (!FNTPNiagaraFontVertexFactory::StaticType.SupportsRayTracingDynamicGeometry())
 	{
 		return;
 	}
 
 	FMeshCollectorResources* CollectorResources = &Context.RayTracingMeshResourceCollector.AllocateOneFrameResource<FMeshCollectorResources>();
-	FNiagaraSpriteVertexFactory& VertexFactory = CollectorResources->VertexFactory;
+	FNTPNiagaraFontVertexFactory& VertexFactory = CollectorResources->VertexFactory;
 
 	// Sort/Cull particles if needed.
 	uint32 NumInstances = SourceMode == ENiagaraRendererSourceDataMode::Particles ? ParticleSpriteRenderData.SourceParticleData->GetNumInstances() : 1;

@@ -27,8 +27,7 @@ public class NiagaraTextParticles : ModuleRules
 			{
 				"Core",
                 "Niagara",
-                "NiagaraShader",
-				"NiagaraVertexFactories",
+				"NiagaraShader",
 				// ... add other public dependencies that you statically link with here ...
 			}
             );
@@ -41,9 +40,11 @@ public class NiagaraTextParticles : ModuleRules
 				"Engine",
 				"RHI",
 				"Niagara",
+				"NiagaraVertexFactories",
                 "RenderCore",
 				"NiagaraCore",
 				"Projects",
+				"NiagaraTextParticlesVertexFactories",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

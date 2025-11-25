@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NTPNiagaraFontRendererProperties.h"
+#include "NTPNiagaraFontVertexFactory.h"
 #include "Materials/Material.h"
 #include "NiagaraRenderer.h"
 #include "NiagaraConstants.h"
@@ -147,7 +148,7 @@ void UNTPNiagaraFontRendererProperties::CollectPSOPrecacheData(FPSOPrecacheParam
 
 const FVertexFactoryType* UNTPNiagaraFontRendererProperties::GetVertexFactoryType() const
 {
-	return &FNiagaraSpriteVertexFactory::StaticType;
+	return &FNTPNiagaraFontVertexFactory::StaticType;
 }
 
 void UNTPNiagaraFontRendererProperties::PostLoad()

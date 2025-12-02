@@ -354,6 +354,8 @@ struct FNDIFontUVInfoProxy : public FNiagaraDataInterfaceProxy
 
 	virtual void ConsumePerInstanceDataFromGameThread(void* PerInstanceData, const FNiagaraSystemInstanceID& InstanceID) override
 	{
+UE_LOG(LogNiagaraTextToolkit, Log, TEXT("UpdateData_RT: called by RT, InstanceID=%llu"), (uint64)InstanceID);
+
 		UE_LOG(LogNiagaraTextToolkit, Log, TEXT("NTT DI Proxy: ConsumePerInstanceDataFromGameThread - Proxy=%p, InstanceID=%llu"), 
 			this, (uint64)InstanceID);
 

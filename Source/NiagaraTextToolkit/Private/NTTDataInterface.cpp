@@ -158,6 +158,7 @@ bool UNTTDataInterface::InitPerInstanceData(void* PerInstanceData, FNiagaraSyste
 	ENQUEUE_RENDER_COMMAND(InitNTTDIProxy)(
 		[RT_Proxy, DataForRT, InstanceID](FRHICommandListImmediate& RHICmdList)
 		{
+			UE_LOG(LogNiagaraTextToolkit, Log, TEXT("InitNTTDIProxy: calling UpdateData_RT for InstanceID=%llu"), (uint64)InstanceID);
 			if (RT_Proxy)
 			{
 				RT_Proxy->UpdateData_RT(DataForRT, InstanceID, RHICmdList);

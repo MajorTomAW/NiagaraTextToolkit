@@ -782,8 +782,9 @@ void FNTTNiagaraTextRenderer::CreateMeshBatchForView(
 
 	VFLooseParams.UnicodeBuffer = FNiagaraRenderer::GetDummyIntBuffer();
 	VFLooseParams.CharacterTextureUvsBuffer = FNiagaraRenderer::GetDummyFloatBuffer();
+	VFLooseParams.CharacterSpriteSizesBuffer = FNiagaraRenderer::GetDummyFloatBuffer();
 
-		if (ParticleSpriteRenderData.DynamicDataSprites && ParticleSpriteRenderData.DynamicDataSprites->NTTDIProxy)
+	if (ParticleSpriteRenderData.DynamicDataSprites && ParticleSpriteRenderData.DynamicDataSprites->NTTDIProxy)
 		{
 			FNDIFontUVInfoProxy* Proxy = ParticleSpriteRenderData.DynamicDataSprites->NTTDIProxy;
 			const FNiagaraSystemInstanceID InstanceID = ParticleSpriteRenderData.DynamicDataSprites->NTTSystemInstanceID;
@@ -792,8 +793,6 @@ void FNTTNiagaraTextRenderer::CreateMeshBatchForView(
 		{
 			if (FNDIFontUVInfoProxy::FRTInstanceData* InstanceData = InstanceDataPtr)
 			{
-				UE_LOG(LogNiagaraTextToolkit, Log, TEXT("NTT Proxy (RT): InstanceID=%llu NumChars=%u NumLines=%u NumWords=%u"), (uint64)InstanceID, InstanceData->NumChars, InstanceData->NumLines, InstanceData->NumWords);
-
 				if (InstanceData->UnicodeBuffer.SRV.IsValid())
 				{
 					VFLooseParams.UnicodeBuffer = InstanceData->UnicodeBuffer.SRV;
@@ -801,6 +800,10 @@ void FNTTNiagaraTextRenderer::CreateMeshBatchForView(
 				if (InstanceData->CharacterTextureUvsBuffer.SRV.IsValid())
 				{
 					VFLooseParams.CharacterTextureUvsBuffer = InstanceData->CharacterTextureUvsBuffer.SRV;
+				}
+				if (InstanceData->CharacterSpriteSizesBuffer.SRV.IsValid())
+				{
+					VFLooseParams.CharacterSpriteSizesBuffer = InstanceData->CharacterSpriteSizesBuffer.SRV;
 				}
 			}
 		}

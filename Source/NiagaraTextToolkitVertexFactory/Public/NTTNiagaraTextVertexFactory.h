@@ -101,6 +101,7 @@ BEGIN_GLOBAL_SHADER_PARAMETER_STRUCT(FNTTNiagaraTextVFLooseParameters, NIAGARATE
 	SHADER_PARAMETER_SRV(Buffer<int>, NiagaraParticleDataInt)
 	SHADER_PARAMETER_SRV(StructuredBuffer<uint>, UnicodeBuffer)
 	SHADER_PARAMETER_SRV(StructuredBuffer<float4>, CharacterTextureUvsBuffer)
+	SHADER_PARAMETER_SRV(StructuredBuffer<float2>, CharacterSpriteSizesBuffer)
 	SHADER_PARAMETER_SRV(Buffer<uint>, SortedIndices)
 	SHADER_PARAMETER_SRV(Buffer<uint>, IndirectArgsBuffer)
 END_GLOBAL_SHADER_PARAMETER_STRUCT()

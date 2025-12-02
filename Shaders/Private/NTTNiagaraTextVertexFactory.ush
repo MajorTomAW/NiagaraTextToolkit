@@ -831,6 +831,13 @@ FVertexFactoryIntermediates GetVertexFactoryIntermediates(FVertexFactoryInput In
 	Intermediates.SceneData = VF_GPUSCENE_GET_INTERMEDIATES(Input);
 	Intermediates.Position = ParticlePosition;
 	Intermediates.Size = ParticleSize;
+
+	// Scale by the font sprite size
+	int CharIndex = (int)GetNiagaraCharacterIndex(ParticleID);
+	uint UnicodeIndex = NTTNiagaraTextVFLooseParameters.UnicodeBuffer[CharIndex];
+	float2 SpriteSizeScale = NTTNiagaraTextVFLooseParameters.CharacterSpriteSizesBuffer[UnicodeIndex];
+	Intermediates.Size = SpriteSizeScale;
+
 	Intermediates.Color	= GetNiagaraParticleColor(ParticleID);
 	Intermediates.CustomFacingVector = CustomFacing;
 	Intermediates.CustomAlignmentVector = SafeNormalize(GetNiagaraParticleAlignmentVector(ParticleID));

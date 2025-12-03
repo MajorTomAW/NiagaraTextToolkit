@@ -1111,26 +1111,8 @@ FNiagaraDynamicDataBase *FNTTNiagaraTextRenderer::GenerateDynamicData(const FNia
 			ProcessMaterialParameterBindings(Properties->MaterialParameters, Emitter, MakeArrayView(BaseMaterials_GT));
 		}
 
-		if (DynamicData && Properties->FontBindings.Num() > 0)
-		{
-			for (UMaterialInterface* Mat : BaseMaterials_GT)
-			{
-				if (UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(Mat))
-				{
-					for (const FNTTTextParameterBinding& Binding : Properties->FontBindings)
-					{
-						// We can only bind if we have a valid parameter name and a font with a texture
-						if (Binding.MaterialParameterName != NAME_None && Binding.Font && Binding.Font->Textures.Num() > 0)
-						{
-							// Bind page 0 of the font (the main atlas)
-							MID->SetTextureParameterValue(Binding.MaterialParameterName, Binding.Font->Textures[0]);
-						}
-					}
-				}
-			}
-		}
-
-		// Resolve NTT Data Interface binding to get proxy for render thread access
+		// Resolve NTT Data Interface binding to get proxy for render thread access and cache the DI pointer for font fallback
+		UNTTDataInterface* BoundNTTDI = nullptr;
 		if (DynamicData)
 		{
 			if (Properties->NTTDataInterfaceBinding.Parameter.IsValid())
@@ -1144,7 +1126,25 @@ FNiagaraDynamicDataBase *FNTTNiagaraTextRenderer::GenerateDynamicData(const FNia
 					
 					if (UNTTDataInterface* NTTDI = Cast<UNTTDataInterface>(DI))
 					{
+						BoundNTTDI = NTTDI;
 						DynamicData->NTTDIProxy = NTTDI->GetFontProxy();
+					}
+				}
+			}
+		}
+
+		if (DynamicData)
+		{
+			if (BoundNTTDI && BoundNTTDI->FontAsset && BoundNTTDI->FontAsset->Textures.Num() > 0)
+			{
+				if (Properties->bOverrideFontMaterialParameter && Properties->OverrideFontParameterName != NAME_None)
+				{
+					for (UMaterialInterface* Mat : BaseMaterials_GT)
+					{
+						if (UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(Mat))
+						{
+							MID->SetTextureParameterValue(Properties->OverrideFontParameterName, BoundNTTDI->FontAsset->Textures[0]);
+						}
 					}
 				}
 			}

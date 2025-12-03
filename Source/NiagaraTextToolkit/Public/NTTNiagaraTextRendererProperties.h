@@ -14,20 +14,6 @@ class FVertexFactoryType;
 class UFont;
 class UNTTDataInterface;
 
-USTRUCT(BlueprintType)
-struct FNTTTextParameterBinding
-{
-	GENERATED_BODY()
-
-	/** The name of the Texture Parameter in the material to set. */
-	UPROPERTY(EditAnywhere, Category = "Font Binding")
-	FName MaterialParameterName = FName("NTT_Font");
-
-	/** The font asset to bind to the parameter. */
-	UPROPERTY(EditAnywhere, Category = "Font Binding")
-	TObjectPtr<UFont> Font;
-};
-
 /** This enum decides how a sprite particle will orient its "up" axis. Must keep these in sync with NiagaraSpriteVertexFactory.ush*/
 UENUM()
 enum class ENTTNiagaraSpriteAlignment : uint8
@@ -182,6 +168,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Sprite Rendering")
 	FNiagaraUserParameterBinding MaterialUserParamBinding;
 
+	/** If true, the font texture from the data interface will be bound to the material parameter specified by OverrideFontParameterName. Otherwise it binds to 'NTT_Font'. */
+	UPROPERTY(EditAnywhere, Category = "Sprite Rendering", meta = (InlineEditConditionToggle))
+	bool bOverrideFontMaterialParameter;
+
+	/** The name of the material parameter to bind the font texture to. */
+	UPROPERTY(EditAnywhere, Category = "Sprite Rendering", meta = (EditCondition = "bOverrideFontMaterialParameter"))
+	FName OverrideFontParameterName;
+
 	/** Bind an NTT Data Interface user parameter to provide character UV rects and sprite sizes for text rendering. */
 	UPROPERTY(EditAnywhere, Category = "Bindings")
 	FNiagaraUserParameterBinding NTTDataInterfaceBinding;
@@ -335,10 +329,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Bindings")
 	FNiagaraRendererMaterialParameters MaterialParameters;
 
-	/** Bind a specific Font Asset's texture to a named Material Parameter. */
-	UPROPERTY(EditAnywhere, Category = "Bindings")
-	TArray<FNTTTextParameterBinding> FontBindings;
-
 #if WITH_EDITORONLY_DATA
 	UPROPERTY()
 	TArray<FNiagaraMaterialAttributeBinding> MaterialParameterBindings_DEPRECATED;
@@ -363,7 +353,7 @@ public:
 	UPROPERTY(Transient)
 	FNiagaraVariableAttributeBinding PrevPivotOffsetBinding;
 
-	virtual bool NeedsMIDsForMaterials() const override { return MaterialParameters.HasAnyBindings() || FontBindings.Num() > 0; }
+	virtual bool NeedsMIDsForMaterials() const override { return MaterialParameters.HasAnyBindings() || NTTDataInterfaceBinding.Parameter.IsValid(); }
 
 	UPROPERTY()
 	uint32 MaterialParamValidMask = 0;

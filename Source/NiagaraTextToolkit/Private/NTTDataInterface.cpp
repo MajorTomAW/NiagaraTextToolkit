@@ -136,7 +136,10 @@ bool UNTTDataInterface::InitPerInstanceData(void* PerInstanceData, FNiagaraSyste
 	TArray<int32> OutWordStartIndices;
 	TArray<int32> OutWordCharacterCounts;
 
-	ProcessText(InputText, CharacterPositionsUnfiltered, bFilterWhitespaceCharacters, OutUnicode, OutCharacterPositions, OutLineStartIndices, OutLineCharacterCounts, OutWordStartIndices, OutWordCharacterCounts);
+	if (CharacterPositionsUnfiltered.Num() == InputText.Len())
+	{
+		ProcessText(InputText, CharacterPositionsUnfiltered, bFilterWhitespaceCharacters, OutUnicode, OutCharacterPositions, OutLineStartIndices, OutLineCharacterCounts, OutWordStartIndices, OutWordCharacterCounts);
+	}
 
 	InstanceData->CharacterTextureUvs = MoveTemp(CharacterTextureUvs);
 	InstanceData->CharacterSpriteSizes = MoveTemp(CharacterSpriteSizes);

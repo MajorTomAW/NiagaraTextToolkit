@@ -41,6 +41,8 @@ TArray<TWeakObjectPtr<UNTTNiagaraTextRendererProperties>> UNTTNiagaraTextRendere
 UNTTNiagaraTextRendererProperties::UNTTNiagaraTextRendererProperties()
 	: Material(nullptr)
 	, MaterialUserParamBinding(FNiagaraTypeDefinition(UMaterialInterface::StaticClass()))
+	, bOverrideFontMaterialParameter(true)
+	, OverrideFontParameterName(FName("NTT_Font"))
 	, NTTDataInterfaceBinding(FNiagaraTypeDefinition(UNTTDataInterface::StaticClass()))
 	, bRemoveHMDRollInVR(false)
 	, bSortOnlyWhenTranslucent(true)

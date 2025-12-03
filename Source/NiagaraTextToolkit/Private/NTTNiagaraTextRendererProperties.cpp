@@ -266,7 +266,7 @@ void UNTTNiagaraTextRendererProperties::InitBindings()
 		PivotOffsetBinding = FNiagaraConstants::GetAttributeDefaultBinding(SYS_PARAM_PARTICLES_PIVOT_OFFSET);
 		MaterialRandomBinding = FNiagaraConstants::GetAttributeDefaultBinding(SYS_PARAM_PARTICLES_MATERIAL_RANDOM);
 		NormalizedAgeBinding = FNiagaraConstants::GetAttributeDefaultBinding(SYS_PARAM_PARTICLES_NORMALIZED_AGE);
-		CharacterIndexBinding = FNiagaraConstants::GetAttributeDefaultBinding(FNiagaraVariable(FNiagaraTypeDefinition::GetFloatDef(), TEXT("Particles.CharacterIndex")));
+		CharacterIndexBinding = FNiagaraConstants::GetAttributeDefaultBinding(FNiagaraVariable(FNiagaraTypeDefinition::GetFloatDef(), TEXT("Particles.NTT_CharacterIndex")));
 		//CharacterIndexBinding = FNiagaraConstants::GetAttributeDefaultBinding(SYS_PARAM_PARTICLES_UNIQUE_ID);
 
 		//Default custom sorting to age
@@ -484,6 +484,18 @@ void UNTTNiagaraTextRendererProperties::RemoveVariable(const FNiagaraVariableBas
 	MaterialParameters.RemoveVariable(OldVariable, InEmitter, GetCurrentSourceMode());
 #endif
 }
+
+#if WITH_EDITOR
+const FSlateBrush* UNTTNiagaraTextRendererProperties::GetStackIcon() const
+{
+	const ISlateStyle* Style = FSlateStyleRegistry::FindSlateStyle("NiagaraTextToolkitStyle");
+	if (Style)
+	{
+		return Style->GetBrush("NiagaraTextToolkit.TextRendererIcon");
+	}
+	return nullptr;
+}
+#endif
 
 const TArray<FNiagaraVariable>& UNTTNiagaraTextRendererProperties::GetOptionalAttributes()
 {

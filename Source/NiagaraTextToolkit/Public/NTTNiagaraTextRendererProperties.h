@@ -7,6 +7,7 @@
 #include "NiagaraGPUSortInfo.h"
 #include "NiagaraRendererProperties.h"
 #include "Particles/SubUVAnimation.h"
+#include "Styling/SlateStyleRegistry.h"
 #include "NTTNiagaraTextRendererProperties.generated.h"
 
 class UMaterialInstanceConstant;
@@ -108,7 +109,7 @@ namespace ENTTNiagaraSpriteVFLayout
 class FAssetThumbnailPool;
 class SWidget;
 
-UCLASS(editinlinenew, meta = (DisplayName = "Text Renderer"), MinimalAPI)
+UCLASS(editinlinenew, meta = (DisplayName = "NTT Text Renderer"), MinimalAPI)
 class UNTTNiagaraTextRendererProperties : public UNiagaraRendererProperties
 {
 public:
@@ -140,6 +141,7 @@ public:
 	virtual bool PopulateRequiredBindings(FNiagaraParameterStore& InParameterStore)  override;
 	virtual void CollectPSOPrecacheData(FPSOPrecacheParamsList& OutParams) override;
 #if WITH_EDITOR
+	virtual const FSlateBrush* GetStackIcon() const override;
 	virtual const TArray<FNiagaraVariable>& GetOptionalAttributes() override;
 	virtual void GetAdditionalVariables(TArray<FNiagaraVariableBase>& OutArray) const override;
 	virtual void GetRendererWidgets(const FNiagaraEmitterInstance* InEmitter, TArray<TSharedPtr<SWidget>>& OutWidgets, TSharedPtr<FAssetThumbnailPool> InThumbnailPool) const override;
@@ -176,10 +178,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Sprite Rendering", meta = (EditCondition = "bOverrideFontMaterialParameter"))
 	FName OverrideFontParameterName;
 
-	/** Bind an NTT Data Interface user parameter to provide character UV rects and sprite sizes for text rendering. */
-	UPROPERTY(EditAnywhere, Category = "Bindings")
-	FNiagaraUserParameterBinding NTTDataInterfaceBinding;
-
 	/** Whether or not to draw a single element for the Emitter or to draw the particles.*/
 	UPROPERTY(EditAnywhere, Category = "Sprite Rendering")
 	ENiagaraRendererSourceDataMode SourceMode = ENiagaraRendererSourceDataMode::Particles;
@@ -191,10 +189,6 @@ public:
 	/** Determines how the particle billboard orients itself relative to the camera.*/
 	UPROPERTY(EditAnywhere, Category = "Sprite Rendering")
 	ENTTNiagaraSpriteFacingMode FacingMode = ENTTNiagaraSpriteFacingMode::Automatic;
-
-	/** Determines how we sort the particles prior to rendering.*/
-	UPROPERTY(EditAnywhere, Category = "Sorting")
-	ENiagaraSortMode SortMode = ENiagaraSortMode::None;
 
 	/** World space radius that UVs generated with the ParticleMacroUV material node will tile based on. */
 	UPROPERTY(EditAnywhere, Category = "Sprite Rendering")
@@ -210,14 +204,6 @@ public:
 	/** If true, removes the HMD view roll (e.g. in VR) */
 	UPROPERTY(EditAnywhere, Category = "Sprite Rendering", meta = (DisplayName = "Remove HMD Roll"))
 	uint8 bRemoveHMDRollInVR : 1;
-
-	/** If true, the particles are only sorted when using a translucent material. */
-	UPROPERTY(EditAnywhere, Category = "Sorting", meta = (EditCondition = "SortMode != ENiagaraSortMode::None", EditConditionHides))
-	uint8 bSortOnlyWhenTranslucent : 1;
-
-	/** Sort precision to use when sorting is active. */
-	UPROPERTY(EditAnywhere, Category = "Sorting", meta = (EditCondition = "SortMode != ENiagaraSortMode::None", EditConditionHides))
-	ENiagaraRendererSortPrecision SortPrecision = ENiagaraRendererSortPrecision::Default;
 
 	/**
 	Gpu simulations run at different points in the frame depending on what features are used, i.e. depth buffer, distance fields, etc.
@@ -252,6 +238,22 @@ public:
 	/** When FacingMode is FacingCameraDistanceBlend, the distance at which the sprite is fully facing the camera position */
 	UPROPERTY(EditAnywhere, Category = "Sprite Rendering", meta = (UIMin = "0"))
 	float MaxFacingCameraBlendDistance = 0.0f;
+
+	/** Determines how we sort the particles prior to rendering.*/
+	UPROPERTY(EditAnywhere, Category = "Sorting")
+	ENiagaraSortMode SortMode = ENiagaraSortMode::None;
+
+	/** If true, the particles are only sorted when using a translucent material. */
+	UPROPERTY(EditAnywhere, Category = "Sorting", meta = (EditCondition = "SortMode != ENiagaraSortMode::None", EditConditionHides))
+	uint8 bSortOnlyWhenTranslucent : 1;
+
+	/** Sort precision to use when sorting is active. */
+	UPROPERTY(EditAnywhere, Category = "Sorting", meta = (EditCondition = "SortMode != ENiagaraSortMode::None", EditConditionHides))
+	ENiagaraRendererSortPrecision SortPrecision = ENiagaraRendererSortPrecision::Default;
+
+	/** Bind an NTT Data Interface user parameter to provide character UV rects and sprite sizes for text rendering. */
+	UPROPERTY(EditAnywhere, Category = "Bindings")
+	FNiagaraUserParameterBinding NTTDataInterfaceBinding;
 
 	/** Which attribute should we use for position when generating sprites?*/
 	UPROPERTY(EditAnywhere, Category = "Bindings")

@@ -24,6 +24,12 @@ uint {ParameterName}_bFilterWhitespaceCharactersValue;       // 1 if filtering w
 
 void GetCharacterUV_{ParameterName}(in int In_CharacterIndex, out float Out_USize, out float Out_VSize, out float Out_UStart, out float Out_VStart)
 {
+	int NumChars = int({ParameterName}_NumChars);
+	if (NumChars > 0)
+	{
+		In_CharacterIndex = In_CharacterIndex % NumChars;
+	}
+
 	int UnicodeBase = {ParameterName}_Offset_Unicode + In_CharacterIndex;
 	int Unicode = asint({ParameterName}_PackedBuffer[UnicodeBase]);
 
@@ -54,8 +60,7 @@ void GetCharacterPosition_{ParameterName}(in int In_CharacterIndex, out float3 O
 		return;
 	}
 
-	int idx = In_CharacterIndex;
-	idx = clamp(idx, 0, int({ParameterName}_NumChars) - 1);
+	int idx = In_CharacterIndex % int({ParameterName}_NumChars);
 
 	int Base = {ParameterName}_Offset_Positions + idx * 2;
 	float px = {ParameterName}_PackedBuffer[Base + 0];
@@ -68,6 +73,12 @@ void GetCharacterPosition_{ParameterName}(in int In_CharacterIndex, out float3 O
 // Returns the sprite size in pixels (Width, Height) for the given character index
 void GetCharacterSpriteSize_{ParameterName}(in int In_CharacterIndex, out float2 Out_SpriteSize)
 {
+	int NumChars = int({ParameterName}_NumChars);
+	if (NumChars > 0)
+	{
+		In_CharacterIndex = In_CharacterIndex % NumChars;
+	}
+
 	int UnicodeBase = {ParameterName}_Offset_Unicode + In_CharacterIndex;
 	int Unicode = asint({ParameterName}_PackedBuffer[UnicodeBase]);
 
@@ -175,8 +186,12 @@ void GetCharacterCountInWordRange_{ParameterName}(in int In_StartWordIndex, in i
 	int NumWords = int({ParameterName}_NumWords);
 	int TotalInRange = 0;
 
-	if (NumWords > 0 && In_StartWordIndex >= 0 && In_StartWordIndex < NumWords)
+	if (NumWords > 0)
 	{
+		int Delta = In_EndWordIndex - In_StartWordIndex;
+		In_StartWordIndex = In_StartWordIndex % NumWords;
+		In_EndWordIndex = In_StartWordIndex + Delta;
+
 		int StartIndex = In_StartWordIndex;
 		int EndIndex   = clamp(In_EndWordIndex, 0, NumWords - 1);
 
@@ -207,8 +222,12 @@ void GetCharacterCountInLineRange_{ParameterName}(in int In_StartLineIndex, in i
 	int NumLines = int({ParameterName}_NumLines);
 	int TotalInRange = 0;
 
-	if (NumLines > 0 && In_StartLineIndex >= 0 && In_StartLineIndex < NumLines)
+	if (NumLines > 0)
 	{
+		int Delta = In_EndLineIndex - In_StartLineIndex;
+		In_StartLineIndex = In_StartLineIndex % NumLines;
+		In_EndLineIndex = In_StartLineIndex + Delta;
+
 		int StartIndex = In_StartLineIndex;
 		int EndIndex   = clamp(In_EndLineIndex, 0, NumLines - 1);
 

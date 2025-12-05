@@ -949,11 +949,17 @@ void UNTTDataInterface::GetCharacterUVVM(FVectorVMExternalFunctionContext& Conte
 	const TArray<int32>& Unicode = InstData.Get()->Unicode;
 	const TArray<FVector4>& TextureUvs = InstData.Get()->CharacterTextureUvs;
 	const int32 NumRects = TextureUvs.Num();
+	const int32 NumChars = Unicode.Num();
 
 	// Iterate over the particles
 	for (int32 i = 0; i < Context.GetNumInstances(); ++i)
 	{
-		const int32 CharacterIndex = InCharacterIndex.GetAndAdvance();
+		int32 CharacterIndex = InCharacterIndex.GetAndAdvance();
+
+		if (NumChars > 0)
+		{
+			CharacterIndex = CharacterIndex % NumChars;
+		}
 
 		const int32 UnicodeIndex = (Unicode.IsValidIndex(CharacterIndex)) ? Unicode[CharacterIndex] : -1;
 
@@ -1008,7 +1014,7 @@ void UNTTDataInterface::GetCharacterPositionVM(FVectorVMExternalFunctionContext&
 			continue;
 		}
 
-		Index = FMath::Clamp(Index, 0, NumChars - 1);
+		Index = Index % NumChars;
 		const FVector2f Position2 = Positions.IsValidIndex(Index) ? Positions[Index] : FVector2f(0.0f, 0.0f);
 
 		// UE Coordinates: X (forward) = 0, Y (left/right) = horizontal, Z (up/down) = vertical
@@ -1190,8 +1196,12 @@ void UNTTDataInterface::GetCharacterCountInWordRangeVM(FVectorVMExternalFunction
 
 		int32 TotalInRange = 0;
 
-		if (NumWords > 0 && StartWordIndex >= 0 && StartWordIndex < NumWords)
+		if (NumWords > 0)
 		{
+			const int32 Delta = EndWordIndex - StartWordIndex;
+			StartWordIndex = StartWordIndex % NumWords;
+			EndWordIndex = StartWordIndex + Delta;
+
 			const int32 StartIndex = StartWordIndex;
 			const int32 EndIndex   = FMath::Clamp(EndWordIndex, 0, NumWords - 1);
 
@@ -1232,8 +1242,12 @@ void UNTTDataInterface::GetCharacterCountInLineRangeVM(FVectorVMExternalFunction
 
 		int32 TotalInRange = 0;
 
-		if (NumLines > 0 && StartLineIndex >= 0 && StartLineIndex < NumLines)
+		if (NumLines > 0)
 		{
+			const int32 Delta = EndLineIndex - StartLineIndex;
+			StartLineIndex = StartLineIndex % NumLines;
+			EndLineIndex = StartLineIndex + Delta;
+
 			const int32 StartIndex = StartLineIndex;
 			const int32 EndIndex   = FMath::Clamp(EndLineIndex, 0, NumLines - 1);
 
@@ -1262,10 +1276,16 @@ void UNTTDataInterface::GetCharacterSpriteSizeVM(FVectorVMExternalFunctionContex
 	const TArray<int32>& Unicode = InstData.Get()->Unicode;
 	const TArray<FVector2f>& SpriteSizes = InstData.Get()->CharacterSpriteSizes;
 	const int32 NumSizes = SpriteSizes.Num();
+	const int32 NumChars = Unicode.Num();
 
 	for (int32 i = 0; i < Context.GetNumInstances(); ++i)
 	{
-		const int32 CharacterIndex = InCharacterIndex.GetAndAdvance();
+		int32 CharacterIndex = InCharacterIndex.GetAndAdvance();
+
+		if (NumChars > 0)
+		{
+			CharacterIndex = CharacterIndex % NumChars;
+		}
 
 		const int32 UnicodeIndex = (Unicode.IsValidIndex(CharacterIndex)) ? Unicode[CharacterIndex] : -1;
 

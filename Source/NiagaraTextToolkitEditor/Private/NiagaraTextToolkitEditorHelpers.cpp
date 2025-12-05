@@ -32,7 +32,8 @@ bool UNiagaraTextToolkitEditorHelpers::SaveFontTexturesToAssets(UFont* FontAsset
 
 	FString PackageName = FPackageName::ObjectPathToPackageName(FontAssetPath);
 	FString PackagePathForValidation = FPackageName::GetLongPackagePath(PackageName);
-	FString BaseName = TEXT("T_NTT_") + FPackageName::GetShortName(PackageName);
+	FString ShortName = FPackageName::GetShortName(PackageName);
+	FString BaseName = ShortName.StartsWith(TEXT("F_")) ? TEXT("T_") + ShortName.RightChop(2) : TEXT("T_") + ShortName;
 
 	FText InvalidPathReason;
 	if (!FPackageName::IsValidLongPackageName(PackagePathForValidation, false, &InvalidPathReason))

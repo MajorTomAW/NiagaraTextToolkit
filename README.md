@@ -1,5 +1,25 @@
 # Niagara Text Toolkit (NTT)
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [How It Works](#how-it-works)
+- [Recommended Niagara Emitter Settings](#recommended-niagara-emitter-settings)
+- [Adding Custom Fonts](#adding-custom-fonts)
+  - [Creating a Font Asset](#creating-a-font-asset)
+  - [Configuring Character Set](#configuring-character-set)
+  - [Optimizing Texture Layout](#optimizing-texture-layout)
+  - [Generating Distance Field Texture](#generating-distance-field-texture)
+  - [Extracting the Texture Asset](#extracting-the-texture-asset)
+  - [Using Your Custom Font](#using-your-custom-font)
+- [Documentation](#documentation)
+  - [NTT Data Interface](#ntt-data-interface)
+    - [Properties](#properties)
+    - [Exposed Functions (Niagara)](#exposed-functions-niagara)
+  - [Blueprint Library](#blueprint-library)
+  - [Editor Utilities](#editor-utilities)
+
 ## Introduction
 
 The **Niagara Text Toolkit (NTT)** is a plugin for Unreal Engine that aims to simplify the process of creating text based particle systems.
@@ -14,6 +34,56 @@ The plugin provides a custom **Niagara Data Interface (NTT Data Interface)** tha
    - Path example: `[YourProjectRoot]/Plugins/NiagaraTextToolkit/`
 3. Open your project. Unreal Engine may ask to rebuild the plugin modules; select **Yes**.
 4. Once the editor is open, verify the plugin is enabled by going to **Edit > Plugins** and searching for "Niagara Text Toolkit".
+
+## How It Works
+
+Niagara simulations are inherently less flexible than regular game-thread code because they rely on GPU/CPU parallelization and tight data packing for optimization. The benefit is that they’re extremely fast for certain use cases, but the downside is that parallel execution limits the kinds of algorithms you can implement, and the data packing pushes you toward data structures that “play nice” with Niagara.
+
+For text-based particle systems, these limitations show up in a few ways:
+
+First, the data problem. You want to display an input string, but Niagara doesn’t take a string as input. So the first question is: how do you encode your text into a Niagara-friendly data type? One solution is to pass your input as an array of integers, where each element is the Unicode value for a character. This works, but you have to build that array on the game thread before you spawn the system. The Lyra starter game’s “DamageNumbers” takes a different approach: it passes a float and uses math to derive the number of particles from the number of digits. That’s a clever workaround, but it only works for numbers, not a generic string. So if you want arbitrary text, you end up needing some amount of game-thread preprocessing before the Niagara simulation starts.
+
+Next is positioning. To position a character properly relative to other characters, you need to know the widths of the characters that came before it, and if you want centered text you also need to know the width of the whole line. That implies (at minimum) two passes over the input: one to compute line widths, and one to compute per-character positions. The problem is you can’t really “do two passes” in Niagara; the simulation just doesn’t work like that. Your options are to precompute on the game thread, or restrict yourself (for example) to monospaced fonts where line width is just `CharacterWidth * CharacterCount`. If you want to support any font (not just monospaced), you need some form of iteration over the input on the game thread.
+
+Then there’s the glyph/UV problem. Even if Niagara can spawn and position particles, each particle still needs to display the right glyph from a texture atlas. Usually that means sampling a subset of a font atlas by applying a per-character UV offset and scale in the material, and you also need a way to communicate “which character am I?” from Niagara to the material. Lyra’s number approach can compute UVs in-material because the digit value doubles as a glyph index, but that breaks down as soon as you want characters that aren’t digits.
+
+So overall, building text in Niagara isn’t as straightforward as it looks: you either limit the scope (like the Lyra example), or you accept that some work needs to happen on the game thread and feed Niagara data that it can consume efficiently.
+
+This plugin takes the “no compromise” approach by doing the game-thread work once up-front and exposing the results to Niagara in a Niagara-friendly way.
+
+The first key insight is to use Unreal Engine Font Assets. The benefit is you don’t need to manually author textures (the font asset generates them), and you don’t need to hand-calculate per-character UVs (the font asset already has that information).
+
+Early versions of this plugin exposed this via a Blueprint library: extract the font texture and character data, convert strings to Unicode arrays, compute character positions, then pass all of that into the Niagara system. It worked, but it was clunky, and Unreal has a better mechanism for this.
+
+Enter Data Interfaces.
+
+In Niagara, Data Interfaces are used to interface data between the game thread and your Niagara simulation. They have an initialization phase that runs once when the system is initialized, where you can process game-thread data and pack it into structures Niagara likes. They also let you define functions that Niagara can call during simulation to retrieve that packed data. (If you want the deep details, feel free to read the source.)
+
+Using a Data Interface for text solves a lot of problems in one fell swoop:
+
+- You can assign a **Font Asset** directly in Niagara.
+- You can type an **Input Text** string directly in Niagara (no manual Unicode array setup).
+- The Data Interface can do the per-string/per-font preprocessing during initialization, and Niagara can query the results via functions like UV/position/size lookups.
+
+At a high level, the workflow looks like this:
+
+1. Create an Offline Font Asset (see the section below).
+2. Add the NTT Data Interface to your Niagara System as a User Parameter.
+3. Set `Font Asset` and `Input Text` on the Data Interface.
+4. In your Niagara modules, call the exposed NTT functions (position/UV/size/counts) to drive per-particle attributes and render the correct glyphs.
+
+## Recommended Niagara Emitter Settings
+
+The following are recommended settings on Niagara emitters.
+
+First of all, **Persistent IDs** must be enabled to avoid undefined behavior. The Data Interface assumes that the number of particles spawned by the emitter matches the length of the input text (ignoring whitespace if enabled). The plugin assumes you’ll use the `UniqueID` particle property to index each character, so that value needs to be persistent to avoid bugs.
+
+Next, you should enable **Local Space** simulation on your emitters. This isn’t required for the plugin to work, but emitters default to world space, and if you forget to switch to local space your particles will spawn at the world origin instead of where you spawn the Niagara System.
+
+Finally, I recommend using **CPU simulations**. GPU simulations are fully supported (the Data Interface functions are implemented for GPU too), but there are two main downsides for typical text use cases:
+
+- The particle counts are usually low enough that GPU parallelization doesn’t provide much benefit, and the cost of uploading data can outweigh the marginal compute savings.
+- Right now the Data Interface uploads data to the GPU every frame instead of only during initialization. Fixing this is on my to-do list; I had a solution, but it relied on Niagara APIs that change across engine versions, so to keep things simple and compatible across versions I removed it.
 
 ## Adding Custom Fonts
 

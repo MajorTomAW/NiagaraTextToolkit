@@ -4,6 +4,7 @@
 
 - [Introduction](#introduction)
 - [Installation](#installation)
+- [Supported Unreal Engine Versions](#supported-unreal-engine-versions)
 - [Understanding the Problem](#understanding-the-problem)
 - [The Solution](#the-solution)
 - [Recommended Niagara Emitter Settings](#recommended-niagara-emitter-settings)
@@ -26,6 +27,14 @@ The plugin provides a custom **Niagara Data Interface (NTT Data Interface)** tha
    - Path example: `[YourProjectRoot]/Plugins/NiagaraTextToolkit/`
 3. Open your project. Unreal Engine may ask to rebuild the plugin modules; select **Yes**.
 4. Once the editor is open, verify the plugin is enabled by going to **Edit > Plugins** and searching for "Niagara Text Toolkit".
+
+## Supported Unreal Engine Versions
+
+This plugin is developed against **Unreal Engine 5.3**, and should work on **5.3 and later**.
+
+The C++ code intentionally avoids Niagara APIs that have been unstable across engine versions, and the included modules and example systems should convert cleanly when opening the project in newer engine versions.
+
+Using the plugin on **engine versions earlier than 5.3** is not supported. It will likely break the included assets (modules/systems), although the Data Interface itself *may* still work. (Not tested.)
 
 ## Understanding the Problem
 
